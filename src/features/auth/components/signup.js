@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-    increment,
-    incrementAsync,
-    selectCount,
-} from './authSlice';
-// import styles from './Counter.module.css';
+import React, { useState } from "react";
+
+import { useSelector, useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
+import { selectLoggedInUser, createUserAsync } from "./authSlice";
+import { Navigate } from "react-router-dom";
 import { Link } from 'react-router-dom';
 export default function Signup() {
-    const count = useSelector(selectCount);
     const dispatch = useDispatch();
+    const user = useSelector(selectLoggedInUser);
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm();
 
-
+    console.log(errors)
     return (
         <>
+            {user && <Navigate to="/" replace={true}></Navigate>}
 
             <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -28,7 +32,9 @@ export default function Signup() {
                 </div>
 
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <form className="space-y-6" action="#" method="POST">
+                    <form noValidate className="space-y-6" onSubmit={handleSubmit((data) => {
+                        dispatch(createUserAsync({ email: data.email, password: data.password, address: [] }))
+                    })}>
                         <div>
                             <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                                 Email address
@@ -36,12 +42,20 @@ export default function Signup() {
                             <div className="mt-2">
                                 <input
                                     id="email"
-                                    name="email"
+                                    // name="email"
                                     type="email"
-                                    autoComplete="email"
-                                    required
+                                    {...register("email", {
+                                        required: "Enter email Id",
+                                        pattern: {
+                                            value: /\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/gi,
+                                            message: "Email is not valid",
+                                        },
+                                    })}
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors.email && (
+                                    <p className="text-red-600">{errors.email.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -59,12 +73,18 @@ export default function Signup() {
                             <div className="mt-2">
                                 <input
                                     id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
+                                    {...register("password", {
+                                        pattern: {
+                                            value: /^(?=.*[a-z])(?=.*[a-zA-Z]).{8,}$/,
+                                            message: `Enter Strong Password at least 8 Character`,
+                                        },
+                                    })}
+
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors.password && (
+                                    <p className="text-red-600">{errors.password.message}</p>
+                                )}
                             </div>
                         </div>
 
@@ -77,13 +97,21 @@ export default function Signup() {
                             </div>
                             <div className="mt-2">
                                 <input
-                                    id="confirm-password"
-                                    name="confirm-password"
+                                    id="confirmPassword"
+                                    {...register("confirmPassword", {
+                                        required: "Confirm Password required",
+                                        validate: (value, formValues) =>
+                                            value === formValues.password || "Please Enter the same Password",
+                                    })}
+                                    // name="confirmPassword"
                                     type="password"
-
-                                    required
                                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
+                                {errors.confirmPassword && (
+                                    <p className="text-red-600">
+                                        {errors.confirmPassword.message}
+                                    </p>
+                                )}
                             </div>
                         </div>
                         <div>

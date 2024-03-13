@@ -13,8 +13,8 @@ const initialState = {
 
 export const fetchAllProductsAsync = createAsyncThunk(
   'product/fetchAllProducts',
-  async () => {
-    const response = await fetchAllProducts();
+  async (id) => {
+    const response = await fetchAllProducts(id);
     // The value we return becomes the `fulfilled` action payload
     return response.data;
   }
@@ -133,7 +133,7 @@ export const selectAllProducts = (state) => state.product.products;
 export const selectTotalItems = (state) => state.product.totalItems;
 export const selectBrands = (state) => state.product.brands;
 export const selectCategories = (state) => state.product.categories;
-export const selectProductById = (state) => state.product.selectedProduct;
+export const selectedProductById = (state) => state.product.selectedProduct;
 export const selectFilters = (state) => state.product.filters;
 
 export default productSlice.reducer;
